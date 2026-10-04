@@ -1,58 +1,109 @@
-# GadotGameBuilder
+# Asteria
 
-> A brief, one-sentence description of your project. For example: "A command-line tool to automate the setup and build process for Godot Engine games."
+**Describe a world, get a playable game.** Asteria is a multi-agent AI system
+that turns a natural-language prompt into a complete 2D game: it designs the
+concept, writes the game code, generates the art, and packages the result as
+a downloadable executable.
 
----
+Built at HackTX 2025.
 
-## 📖 About The Project
+![Asteria landing page](docs/landing.png)
 
-A more detailed description of your project. Explain the problem it solves and why you created it. What is your motivation? What makes this project stand out?
+## How it works
 
-## ✨ Key Features
+1. **Describe.** In the web app you describe your world, optionally add a
+   reference image, and tune sliders such as puzzle complexity and pace.
+2. **Design.** A design agent turns the prompt into a structured game concept:
+   genre, objective, mechanics, player abilities, enemies, and levels.
+3. **Build.** A creation agent assembles the game from tested building-block
+   templates (core loop, top-down or platformer movement, health and damage,
+   collision, game states) and has Gemini write the game-specific logic on top.
+4. **Package.** The backend bundles the game with PyInstaller and the web app
+   offers it as a download.
 
-- **Feature 1:** Describe a key feature of your application.
-- **Feature 2:** Describe another key feature.
-- **...**
+Generation runs as a background task. The frontend polls a status endpoint and
+shows progress while the agents work.
 
-## 🚀 Getting Started
+## Architecture
 
-This section will guide a new user through setting up your project on their local machine.
+```
+frontend/   React + TypeScript + Vite + Tailwind
+  src/components/LandingPage.tsx        Landing screen
+  src/components/CreativeToolPage.tsx   Prompt, sliders, generation polling
+  src/components/EditPage.tsx           Result and download
 
-### Prerequisites
+backend/    Python + FastAPI
+  main.py                       API server and command-line interface
+  agents/game_agents.py         Design, level, asset, and creation agents,
+                                coordinated by an AutonomousGameDirector
+  generators/gemini_generator.py   Gemini prompts and response parsing
+  engine/game_engine.py         Pygame engine: entities, collision, game states
+  templates/                    Reusable gameplay building blocks
+  assets/                       Sprite library and procedural asset generator
 
-List any software or tools that need to be installed before a user can run your project.
-
-- Python 3.8+
-- pip
-
-### Installation
-
-1.  Clone the repository:
-    ```sh
-    git clone https://github.com/Saurav-kan/HackTXGameMaker.git
-    ```
-2.  Navigate into the project directory:
-    ```sh
-    cd GadotGameBuilder
-    ```
-3.  Create and activate a Python virtual environment:
-    ```sh
-    python -m venv venv
-    source venv/bin/activate  # On Windows use: venv\Scripts\activate
-    ```
-4.  Install the required dependencies:
-    ```sh
-    pip install -r requirements.txt
-    ```
-
-## 🎮 Usage
-
-Provide code examples and instructions on how to run your application. For example:
-
-```sh
-python main.py --new-project "My Awesome Game"
+examples/   Four games Asteria generated during the hackathon
 ```
 
-## 📜 License
+### API
 
-Distributed under the MIT License. See `LICENSE.txt` for more information.
+| Endpoint                               | Description                         |
+|----------------------------------------|-------------------------------------|
+| `POST /api/generate/start`             | Start a generation job; returns a task ID |
+| `GET /api/generate/status/{task_id}`   | Job status and result               |
+| `GET /api/game/download/{filename}`    | Download the packaged game          |
+
+## Running locally
+
+You need Python 3.10+, Node 18+, and a
+[Gemini API key](https://aistudio.google.com/app/apikey).
+
+### Backend
+
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate          # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+cp .env.example .env              # then add your GEMINI_API_KEY
+python main.py --server           # http://localhost:8000
+```
+
+The backend also works from the command line:
+
+```bash
+python main.py --simple --theme "Space Adventure"
+python main.py --interactive
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev                       # http://localhost:5173
+```
+
+## Try a generated game
+
+The games in `examples/` run on their own with only Pygame installed:
+
+```bash
+pip install pygame
+python examples/turtle_trek.py
+```
+
+| Game | What it is |
+|------|------------|
+| `turtle_trek.py` | Guide a sea turtle hatchling across a beach to the ocean |
+| `chronoclash_arena.py` | Rock-paper-scissors arena battler |
+| `cosmic_grid_guardians.py` | Space-themed grid game, first to win three rounds |
+| `prismatic_dash.py` | Sakura-themed dash game |
+
+These are unedited model output, kept as they were generated.
+
+## Team
+
+Built by [@afafMaliha0716](https://github.com/afafMaliha0716),
+[@Saurav-kan](https://github.com/Saurav-kan), and
+[@juanjg05](https://github.com/juanjg05). The original hackathon repo is
+[Saurav-kan/HackTXGameMaker](https://github.com/Saurav-kan/HackTXGameMaker).
