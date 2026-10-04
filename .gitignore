@@ -1,20 +1,27 @@
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-env/
-venv/
+# Environment files
 .env
+.env.*
+!.env.example
+
+# Python
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+
+# Generated games and PyInstaller output
+backend/games/
+backend/build/
+backend/dist/
+backend/spec/
+*.exe
 
 # Node
 node_modules/
 dist/
-.npm
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
-# VSCode
+# Editors and OS
 .vscode/
+.idea/
+.DS_Store
+desktop.ini
