@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Upload, Star, Play } from 'lucide-react';
+import { GenerationResult } from '../App'; // Import the result type
 
 interface EditPageProps {
+  result: GenerationResult | null; // Add result prop
   onRefineWorld: () => void;
   onNewProject: () => void;
   onSaveProject: () => void;
@@ -22,7 +24,7 @@ interface BackgroundStar {
   delay: number;
 }
 
-export default function EditPage({ onRefineWorld, onNewProject, onSaveProject }: EditPageProps) {
+export default function EditPage({ result, onRefineWorld, onNewProject, onSaveProject }: EditPageProps) {
   const [cursorTrails, setCursorTrails] = useState<CursorTrail[]>([]);
   const [hoverSparkles, setHoverSparkles] = useState<{ id: number; x: number; y: number }[]>([]);
   const [promptValue, setPromptValue] = useState('');
@@ -31,6 +33,54 @@ export default function EditPage({ onRefineWorld, onNewProject, onSaveProject }:
   const [enemyAnim, setEnemyAnim] = useState(false);
   const trailIdRef = useRef(0);
   const sparkleIdRef = useRef(0);
+  const [executableFilename, setExecutableFilename] = useState<string | null>(null);
+
+
+const [executableFilePath, setExecutableFilePath] = useState<string | null>(null);
+
+useEffect(() => {
+
+  console.log("EditPage Received Result:", result);
+
+
+    if (result?.executable_file) {
+        // We now store the full server path, which is guaranteed to be present if the backend finished.
+        setExecutableFilePath(result.executable_file);
+    }
+}, [result]);
+
+// The handleDownloadExe function now reliably extracts the filename just before use
+const handleDownloadExe = () => {
+    if (executableFilePath) {
+        let fullPath = executableFilePath;
+
+        // 1. Normalize path separators (CRITICAL for Windows paths)
+        fullPath = fullPath.replace(/\\/g, '/');
+
+        // 2. Decode any existing URL encoding (e.g., if spaces were encoded as %20)
+        // This is necessary because the browser URL might have already double-encoded spaces/colons.
+        fullPath = decodeURIComponent(fullPath); 
+        
+        // 3. Extract ONLY the last segment (the clean filename)
+        const filename = fullPath.split('/').pop() || '';
+        
+        if (!filename || filename.indexOf('.exe') === -1) {
+             alert("Error: Could not extract a valid filename from the server path.");
+             console.error("Failed to extract filename from:", executableFilePath);
+             return;
+        }
+
+        // 4. Construct the URL using ONLY the clean filename
+        const downloadUrl = `http://localhost:8000/api/game/download/${filename}`;
+
+        console.log(`Initiating download for clean file: ${filename} from URL: ${downloadUrl}`);
+        
+        // 5. Trigger the download
+        window.location.href = downloadUrl;
+    } else {
+        alert("The executable file path is not available. Please wait for generation to complete.");
+    }
+};
 
   // Background twinkling stars
   const [bgStars] = useState<BackgroundStar[]>(() => 
@@ -90,6 +140,7 @@ export default function EditPage({ onRefineWorld, onNewProject, onSaveProject }:
     }, 500);
   };
 
+
   return (
     <div
       style={{
@@ -104,7 +155,7 @@ export default function EditPage({ onRefineWorld, onNewProject, onSaveProject }:
         <motion.div
           key={star.id}
           initial={{ opacity: 0.3 }}
-          animate={{ 
+          animate={{
             opacity: [0.3, 1, 0.3],
             x: [star.x + '%', (star.x - 0.5) + '%'],
           }}
@@ -285,51 +336,63 @@ export default function EditPage({ onRefineWorld, onNewProject, onSaveProject }:
               />
             ))}
 
-            {/* Play in New Tab button */}
-            <motion.button
-              whileHover={{ 
-                scale: 1.05,
-                boxShadow: '0 0 15px rgba(0, 229, 229, 1)',
-              }}
-              whileTap={{ scale: 0.95, y: 2 }}
-              onMouseEnter={handleHover}
-              style={{
-                position: 'absolute',
-                top: '15px',
-                right: '15px',
-                fontFamily: '"Press Start 2P", "Courier New", monospace',
-                fontSize: '0.6rem',
-                padding: '8px 15px',
-                background: 'rgba(0, 229, 229, 0.1)',
-                border: '2px solid #00e5e5',
-                color: '#00e5e5',
-                cursor: 'pointer',
-                boxShadow: '0 0 10px rgba(0, 229, 229, 0.6)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                zIndex: 10,
-              }}
-            >
-              <Play size={12} />
-              Play in New Tab
-            </motion.button>
-
-            {/* Preview content placeholder */}
-            <div style={{
-              width: '100%',
-              height: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#00e5e5',
-              fontFamily: '"Press Start 2P", "Courier New", monospace',
-              fontSize: '1rem',
-              opacity: 0.3,
-            }}>
-              Game Preview
-            </div>
-          </motion.div>
+                        {/* Play in New Tab button */} 
+                        <motion.button
+                          onClick={handleDownloadExe}
+                          // disabled={executableFilename}
+                          whileHover={{
+                            scale: 1.05,
+                            boxShadow: '0 0 15px rgba(0, 229, 229, 1)',
+                          }}
+                          whileTap={{ scale: 0.95, y: 2 }}
+                          onMouseEnter={handleHover}
+                          style={{
+                            position: 'absolute',
+                            top: '15px',
+                            right: '15px',
+                            fontFamily: '"Press Start 2P", "Courier New", monospace',
+                            fontSize: '0.6rem',
+                            padding: '8px 15px',
+                            background: 'rgba(0, 229, 229, 0.1)',
+                            border: '2px solid #00e5e5',
+                            color: '#00e5e5',
+                            cursor: executableFilename ? 'pointer' : 'not-allowed',
+                            boxShadow: '0 0 10px rgba(0, 229, 229, 0.6)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            zIndex: 10,
+                            opacity: executableFilename ? 1 : 0.5,
+                          }}
+                        >
+                          <Play size={12} />
+                          Download EXE
+                        </motion.button>
+            
+                        {/* Preview content placeholder */}
+                        <div style={{
+                          width: '100%',
+                          height: '100%',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#00e5e5',
+                          fontFamily: '"Press Start 2P", "Courier New", monospace',
+                          fontSize: '1rem',
+                          opacity: 0.8,
+                          padding: '20px',
+                          textAlign: 'center'
+                        }}>
+                          <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>{result?.title || 'Game Ready'}</h2>
+                          <p style={{ fontSize: '0.9rem', opacity: 0.7, maxWidth: '80%' }}>{result?.description || 'Your game has been generated.'}</p>
+                          {executableFilename && (
+                            <div style={{ marginTop: '30px', fontSize: '0.8rem', opacity: 0.6, border: '1px solid rgba(0, 229, 229, 0.2)', padding: '15px' }}>
+                              <p>Click "Download EXE" to save the game.</p>
+                              <p style={{marginTop: '10px'}}>This is a standalone executable and does not require Python to be installed.</p>
+                            </div>
+                          )}
+                        </div>          </motion.div>
 
           {/* Live Preview label */}
           <motion.div
@@ -345,7 +408,7 @@ export default function EditPage({ onRefineWorld, onNewProject, onSaveProject }:
               letterSpacing: '0.05em',
             }}
           >
-            Live Preview
+            Game Details
           </motion.div>
         </motion.div>
 
@@ -407,7 +470,7 @@ export default function EditPage({ onRefineWorld, onNewProject, onSaveProject }:
                 }}
               >
                 {/* Simple pixel character representation */}
-                <div style={{
+                <div style={{ 
                   position: 'absolute',
                   top: '20%',
                   left: '50%',
@@ -417,7 +480,7 @@ export default function EditPage({ onRefineWorld, onNewProject, onSaveProject }:
                   background: '#fff',
                   borderRadius: '50%',
                 }} />
-                <div style={{
+                <div style={{ 
                   position: 'absolute',
                   bottom: '20%',
                   left: '50%',
@@ -482,7 +545,7 @@ export default function EditPage({ onRefineWorld, onNewProject, onSaveProject }:
                 }}
               >
                 {/* Simple pixel enemy representation */}
-                <div style={{
+                <div style={{ 
                   position: 'absolute',
                   top: '25%',
                   left: '25%',
@@ -491,7 +554,7 @@ export default function EditPage({ onRefineWorld, onNewProject, onSaveProject }:
                   background: '#fff',
                   borderRadius: '50%',
                 }} />
-                <div style={{
+                <div style={{ 
                   position: 'absolute',
                   top: '25%',
                   right: '25%',
@@ -500,7 +563,7 @@ export default function EditPage({ onRefineWorld, onNewProject, onSaveProject }:
                   background: '#fff',
                   borderRadius: '50%',
                 }} />
-                <div style={{
+                <div style={{ 
                   position: 'absolute',
                   bottom: '25%',
                   left: '50%',

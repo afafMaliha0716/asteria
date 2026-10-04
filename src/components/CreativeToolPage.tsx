@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { CosmicBackground } from "./CosmicBackground";
 import { PixelStars } from "./PixelStars";
@@ -7,13 +7,13 @@ import { PixelShootingStar } from "./PixelShootingStar";
 import { DynamicSlider } from "./DynamicSlider";
 import { ConstellationLoading } from "./ConstellationLoading";
 import { Image, Sparkles } from "lucide-react";
-
+import { GenerationResult } from "../App"; // Import the new type
 
 
 type Stage = 'input' | 'sliders' | 'loading';
 
 interface CreativeToolPageProps {
-  onGenerate?: () => void;
+  onGenerate?: (result: GenerationResult) => void; // Update prop to accept result
 }
 
 export function CreativeToolPage({ onGenerate }: CreativeToolPageProps = {}) {
@@ -33,6 +33,69 @@ export function CreativeToolPage({ onGenerate }: CreativeToolPageProps = {}) {
   const [puzzleComplexity, setPuzzleComplexity] = useState(5);
   const [ageGroup, setAgeGroup] = useState(7);
   const [speedChaos, setSpeedChaos] = useState(4);
+  const [taskId, setTaskId] = useState<string | null>(null);
+  const [loadingStatus, setLoadingStatus] = useState('Initiating sequence...');
+
+  // This effect will start polling when a task ID is received
+  useEffect(() => {
+    if (!taskId) return;
+
+    const intervalId = setInterval(async () => {
+      try {
+        const response = await fetch(`http://localhost:8000/api/generate/status/${taskId}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch status');
+        }
+        const data = await response.json();
+
+        // Update loading status message based on backend status
+        switch (data.status) {
+          case 'IN_PROGRESS':
+            setLoadingStatus('Generating game world...<br/>AI is thinking...');
+            break;
+          case 'PACKAGING':
+            setLoadingStatus('Packaging your game...<br/>Creating executable...');
+            break;
+          case 'PENDING':
+            setLoadingStatus('Waiting in the queue...');
+            break;
+        }
+
+        if (data.status === 'SUCCESS') {
+          clearInterval(intervalId);
+          console.log('Generation successful!', data.result);
+          
+          // 1. Pass the successful result up to the parent component (App.tsx)
+          if (onGenerate) {
+              onGenerate(data.result); 
+          }
+
+          // 2. CRITICAL FIX: Tell CreativeToolPage to stop showing the loading screen.
+          // This allows the parent component to render the EditPage with the new result prop.
+          setStage('sliders'); // Or 'input', whichever state naturally follows 'loading'
+          
+          // 3. Clear the task ID 
+          setTaskId(null);
+
+      } else if (data.status === 'FAILURE') {
+          clearInterval(intervalId);
+          console.error('Generation failed:', data.result.error);
+          setStage('sliders'); 
+          setTaskId(null);
+        }
+
+      } catch (error) {
+        console.error('Error polling for status:', error);
+        clearInterval(intervalId);
+        setStage('sliders');
+        setTaskId(null);
+      }
+    }, 3000); // Poll every 3 seconds
+
+    return () => clearInterval(intervalId);
+
+  }, [taskId, onGenerate]);
+
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -52,10 +115,10 @@ export function CreativeToolPage({ onGenerate }: CreativeToolPageProps = {}) {
     }
   };
 
-  const handleStartGenerating = () => {
+  const handleStartGenerating = async () => {
     setStage('loading');
-    // Trigger generation logic here
-    console.log('Starting generation with:', {
+
+    const generationData = {
       worldDescription,
       uploadedImage,
       imageDescription,
@@ -67,14 +130,29 @@ export function CreativeToolPage({ onGenerate }: CreativeToolPageProps = {}) {
         ageGroup,
         speedChaos,
       }
-    });
+    };
 
-    // After loading, transition to edit page
-    setTimeout(() => {
-      if (onGenerate) {
-        onGenerate();
+    try {
+      // 1. Call the new 'start' endpoint
+      const response = await fetch('http://localhost:8000/api/generate/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(generationData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to start generation');
       }
-    }, 4000);
+
+      const { task_id } = await response.json();
+      
+      // 2. Set the task ID in the state, which will trigger the useEffect to start polling
+      setTaskId(task_id);
+
+    } catch (error) {
+      console.error("There was a problem starting the generation:", error);
+      setStage('sliders'); // Go back to the previous screen on error
+    }
   };
 
   return (
@@ -681,7 +759,7 @@ export function CreativeToolPage({ onGenerate }: CreativeToolPageProps = {}) {
 
       {/* Loading Screen */}
       <AnimatePresence>
-        {stage === 'loading' && <ConstellationLoading />}
+        {stage === 'loading' && <ConstellationLoading statusText={loadingStatus} />}
       </AnimatePresence>
     </div>
   );
