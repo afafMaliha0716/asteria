@@ -92,12 +92,9 @@ def run_game_generation(task_id: str, request: GenerationRequest):
         
         backend_dir = os.path.dirname(os.path.abspath(__file__))
         
-        pyinstaller_exe_path = os.path.expanduser("~/AppData/Roaming/Python/Python312/Scripts/pyinstaller.exe")
-        if not os.path.exists(pyinstaller_exe_path):
-            pyinstaller_exe_path = "pyinstaller"
-
+        # Run PyInstaller through the current interpreter so it works on any OS
         pyinstaller_command = [
-            pyinstaller_exe_path,
+            sys.executable, "-m", "PyInstaller",
             "--onefile",
             "--name", game_name,
             "--distpath", os.path.join(backend_dir, "dist"),
@@ -113,10 +110,12 @@ def run_game_generation(task_id: str, request: GenerationRequest):
             logger.error(f"[{task_id}] PyInstaller failed: {process.stderr}")
             raise Exception(f"PyInstaller failed: {process.stderr}")
 
-        exe_filename = f"{game_name}.exe"
+        # PyInstaller only adds the .exe suffix on Windows
+        exe_filename = f"{game_name}.exe" if os.name == "nt" else game_name
         dist_path = os.path.join(backend_dir, "dist", exe_filename)
         final_exe_path = os.path.join(backend_dir, "games", exe_filename)
 
+        os.makedirs(os.path.dirname(final_exe_path), exist_ok=True)
         shutil.move(dist_path, final_exe_path)
 
         # exe_filename_only = os.path.basename(final_exe_path)
