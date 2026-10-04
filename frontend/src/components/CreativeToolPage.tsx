@@ -8,6 +8,7 @@ import { DynamicSlider } from "./DynamicSlider";
 import { ConstellationLoading } from "./ConstellationLoading";
 import { Image, Sparkles } from "lucide-react";
 import { GenerationResult } from "../App"; // Import the new type
+import { API_BASE } from "../config";
 
 
 type Stage = 'input' | 'sliders' | 'loading';
@@ -42,7 +43,7 @@ export function CreativeToolPage({ onGenerate }: CreativeToolPageProps = {}) {
 
     const intervalId = setInterval(async () => {
       try {
-        const response = await fetch(`http://localhost:8000/api/generate/status/${taskId}`);
+        const response = await fetch(`${API_BASE}/api/generate/status/${taskId}`);
         if (!response.ok) {
           throw new Error('Failed to fetch status');
         }
@@ -134,7 +135,7 @@ export function CreativeToolPage({ onGenerate }: CreativeToolPageProps = {}) {
 
     try {
       // 1. Call the new 'start' endpoint
-      const response = await fetch('http://localhost:8000/api/generate/start', {
+      const response = await fetch(`${API_BASE}/api/generate/start`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(generationData),

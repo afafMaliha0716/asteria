@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Upload, Star, Play } from 'lucide-react';
 import { GenerationResult } from '../App'; // Import the result type
+import { API_BASE } from '../config';
 
 interface EditPageProps {
   result: GenerationResult | null; // Add result prop
@@ -71,7 +72,7 @@ const handleDownloadExe = () => {
         }
 
         // 4. Construct the URL using ONLY the clean filename
-        const downloadUrl = `http://localhost:8000/api/game/download/${filename}`;
+        const downloadUrl = `${API_BASE}/api/game/download/${filename}`;
 
         console.log(`Initiating download for clean file: ${filename} from URL: ${downloadUrl}`);
         
