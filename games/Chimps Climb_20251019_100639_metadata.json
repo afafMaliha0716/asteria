@@ -1,0 +1,266 @@
+{
+  "concept": {
+    "title": "Chimp's Climb",
+    "description": "Ascend the treacherous peaks of Mount Coconuts as a nimble monkey, swinging, climbing, and dodging perilous obstacles and mischievous creatures in this challenging 2D platformer.",
+    "genre": "Platformer",
+    "theme": "Vibrant jungle transitioning to a snowy, treacherous mountain summit.",
+    "objective": "Reach the very top of Mount Coconuts to retrieve the legendary Golden Banana.",
+    "mechanics": [
+      "Vine Swinging: Players can latch onto vines with a grapple mechanic to traverse gaps and gain momentum.",
+      "Wall Grabbing/Climbing: Monkey can cling to designated surfaces and slowly ascend or descend.",
+      "Precise Jumping: Standard platformer jumping with adjustable height based on button press duration."
+    ],
+    "player_abilities": [
+      "Vine Grapple: Latch onto vines to swing, pull yourself forward, or chain swings.",
+      "Adhesive Grip: Stick to certain surfaces (rocks, bark) to traverse vertical or horizontal pathways.",
+      "Tail Swing Dash: A quick burst of speed used for horizontal traversal or dodging."
+    ],
+    "enemies": [
+      {
+        "name": "Angry Parrot",
+        "behavior": "Flies in predictable patterns, swooping down to peck at the player.",
+        "difficulty": "easy"
+      },
+      {
+        "name": "Rock Golem",
+        "behavior": "Stationary or slow-moving, throws small rocks at the player. Can be damaged by environmental hazards.",
+        "difficulty": "medium"
+      },
+      {
+        "name": "Snowy Owl",
+        "behavior": "Perches on ledges, swoops down quickly when the player is in range, requiring precise dodging.",
+        "difficulty": "hard"
+      }
+    ],
+    "powerups": [
+      {
+        "name": "Speedy Banana",
+        "effect": "Temporarily increases movement speed and jump height."
+      },
+      {
+        "name": "Sticky Paws",
+        "effect": "Allows clinging to any surface for a short duration, ignoring friction and enabling easier climbing."
+      }
+    ],
+    "level_progression": "Levels are segmented sections of the mountain, each with unique environmental challenges and enemy types. As the player ascends, the environment transitions from lush jungle to icy cliffs, with increasing difficulty and complexity of platforming sections.",
+    "scoring_system": "Points are awarded for collecting bananas, defeating enemies (though direct combat is discouraged, environmental kills are rewarded), and completing sections quickly. Bonus points for reaching checkpoints without taking damage.",
+    "visual_style": "A vibrant, hand-drawn 2D art style with detailed backgrounds and expressive character animations. Lush greens and earthy tones for the jungle, transitioning to blues, whites, and greys for the mountain summit. Parallax scrolling for depth.",
+    "sound_theme": "Upbeat and whimsical jungle tunes in lower sections, evolving into more epic and atmospheric orchestral pieces for the higher, more dangerous altitudes. Satisfying sound effects for swinging, climbing, and collecting items. Monkey vocalizations add personality."
+  },
+  "level_design": {
+    "level_number": 1,
+    "name": "The Whispering Canopy",
+    "description": "Begin your ascent through the ancient jungle canopy. Master the basics of vine swinging and wall climbing as you navigate gentle gaps and encounter your first jungle inhabitants. Collect some glittering fruits along the way to bolster your health and speed.",
+    "size": {
+      "width": 800,
+      "height": 600
+    },
+    "spawn_points": [
+      {
+        "x": 50,
+        "y": 550,
+        "type": "player"
+      }
+    ],
+    "platforms": [
+      {
+        "x": 0,
+        "y": 580,
+        "width": 800,
+        "height": 20,
+        "type": "ground"
+      },
+      {
+        "x": 150,
+        "y": 450,
+        "width": 150,
+        "height": 20,
+        "type": "platform"
+      },
+      {
+        "x": 350,
+        "y": 350,
+        "width": 100,
+        "height": 20,
+        "type": "platform"
+      },
+      {
+        "x": 500,
+        "y": 250,
+        "width": 120,
+        "height": 20,
+        "type": "platform"
+      },
+      {
+        "x": 650,
+        "y": 150,
+        "width": 100,
+        "height": 20,
+        "type": "platform"
+      }
+    ],
+    "vines": [
+      {
+        "x": 100,
+        "y": 400,
+        "length": 100,
+        "type": "swing"
+      },
+      {
+        "x": 250,
+        "y": 300,
+        "length": 80,
+        "type": "swing"
+      },
+      {
+        "x": 420,
+        "y": 200,
+        "length": 90,
+        "type": "swing"
+      },
+      {
+        "x": 580,
+        "y": 100,
+        "length": 70,
+        "type": "swing"
+      }
+    ],
+    "wall_surfaces": [
+      {
+        "x": 300,
+        "y": 350,
+        "width": 20,
+        "height": 100,
+        "type": "climbable"
+      },
+      {
+        "x": 480,
+        "y": 250,
+        "width": 20,
+        "height": 100,
+        "type": "climbable"
+      }
+    ],
+    "obstacles": [
+      {
+        "x": 270,
+        "y": 430,
+        "width": 40,
+        "height": 40,
+        "type": "spiky_plant"
+      },
+      {
+        "x": 570,
+        "y": 230,
+        "width": 30,
+        "height": 30,
+        "type": "rolling_log"
+      }
+    ],
+    "powerups": [
+      {
+        "x": 180,
+        "y": 460,
+        "type": "fruit_health"
+      },
+      {
+        "x": 380,
+        "y": 360,
+        "type": "leaf_speed"
+      },
+      {
+        "x": 520,
+        "y": 260,
+        "type": "fruit_health"
+      }
+    ],
+    "enemies": [
+      {
+        "x": 180,
+        "y": 420,
+        "type": "parrot",
+        "patrol_path": [
+          [
+            180,
+            420
+          ],
+          [
+            220,
+            420
+          ]
+        ]
+      },
+      {
+        "x": 400,
+        "y": 320,
+        "type": "spider",
+        "patrol_path": [
+          [
+            400,
+            320
+          ],
+          [
+            440,
+            320
+          ]
+        ]
+      },
+      {
+        "x": 670,
+        "y": 120,
+        "type": "bat",
+        "patrol_path": [
+          [
+            670,
+            120
+          ],
+          [
+            700,
+            120
+          ]
+        ]
+      }
+    ],
+    "objectives": [
+      {
+        "type": "collect",
+        "target": "fruit",
+        "count": 5
+      },
+      {
+        "type": "defeat",
+        "target": "parrot",
+        "count": 1
+      },
+      {
+        "type": "defeat",
+        "target": "spider",
+        "count": 1
+      }
+    ],
+    "difficulty": "easy",
+    "time_limit": 150
+  },
+  "assets": {
+    "player": "Blue rectangle representing the player character",
+    "enemies": {
+      "basic": "Red rectangle for basic enemy",
+      "aggressive": "Dark red rectangle for aggressive enemy"
+    },
+    "powerups": {
+      "health": "Green circle for health powerup",
+      "speed": "Yellow circle for speed powerup"
+    },
+    "obstacles": {
+      "wall": "Gray rectangle for wall obstacle",
+      "rock": "Brown circle for rock obstacle"
+    },
+    "background": "Black background",
+    "ui_elements": {
+      "score": "White text for score display",
+      "health_bar": "Red rectangle for health bar"
+    }
+  },
+  "created_at": "2025-10-19T10:06:39.631235",
+  "theme": "A game where you are a monkey trying to get to the top of a mountian, this is a platformer"
+}

@@ -1,0 +1,179 @@
+{
+  "concept": {
+    "title": "Stompbound",
+    "description": "A top-down action-adventure where you play as Pip, a plucky hero on a quest to restore color to a faded world. Using a powerful Pogo Stomp, you'll bounce on enemies, solve environmental puzzles, and reawaken the vibrant life of the land.",
+    "genre": "Top-down Action-Adventure",
+    "theme": "A whimsical, living world of bouncy flora and fauna being corrupted by a colorless gloom.",
+    "objective": "Restore color to the fading lands by stomping out the 'Gloom Gubs' and reawakening the giant 'Heartblooms' at the end of each region to push back the encroaching grey.",
+    "mechanics": [
+      "Pogo Stomp: The player performs a short, quick hop that creates a small area-of-effect impact on landing. This is the primary method for attacking enemies and interacting with specific environmental objects.",
+      "Bounce Chaining: Successfully stomping an enemy launches the player back into a brief 'hop' state. Chaining stomps on multiple enemies without touching the ground for too long increases a combo meter and score multiplier.",
+      "Environmental Puzzles: The stomp is used to activate spring-loaded pads, break cracked ground to reveal secrets, depress switches, and send shockwaves to ring distant bells, creating a blend of combat and puzzle-solving."
+    ],
+    "player_abilities": [
+      "Pogo Stomp: A quick, spammable bounce used to defeat basic enemies and interact with the world.",
+      "Dash Roll: A short, quick dash that provides a moment of invincibility, allowing the player to dodge projectiles and reposition.",
+      "Charged Stomp: Holding the stomp button charges a powerful, wider-radius stomp that can break armor, stun larger enemies, and activate heavier environmental switches."
+    ],
+    "enemies": [
+      {
+        "name": "Gloom Gub",
+        "behavior": "The most basic enemy. It wanders back and forth in a predictable path. Defeated with a single Pogo Stomp.",
+        "difficulty": "easy"
+      },
+      {
+        "name": "Spiny Shuffler",
+        "behavior": "Covered in a hard, spiky shell that makes it immune to the standard Pogo Stomp. It must be stunned first with a Charged Stomp, which flips it over and makes it vulnerable.",
+        "difficulty": "medium"
+      },
+      {
+        "name": "Gloombat",
+        "behavior": "A flying enemy that hovers above the ground. It periodically swoops down to attack the player, becoming vulnerable to a stomp only during its dive.",
+        "difficulty": "medium"
+      },
+      {
+        "name": "Shade Slinger",
+        "behavior": "A stationary, plant-like enemy that lobs slow-moving projectiles of gloom. It is often placed in hard-to-reach areas, requiring the player to bounce off other enemies to get to it.",
+        "difficulty": "hard"
+      }
+    ],
+    "powerups": [
+      {
+        "name": "Springleaf Sandals",
+        "effect": "A temporary power-up that increases the height and distance of the bounce received after a successful stomp, allowing for longer chains and access to elevated areas."
+      },
+      {
+        "name": "Resonance Bloom",
+        "effect": "For a short duration, every stomp sends out a small, damaging shockwave along the ground, allowing the player to clear groups of weaker enemies more easily."
+      }
+    ],
+    "level_progression": "The game is divided into distinct regions (e.g., Whispering Woods, Crystal Caves, Sunken City). Each region consists of several interconnected levels that can be explored semi-openly. The goal in each region is to find and activate three 'Heartbloom' buds by solving a major puzzle or defeating a mini-boss. Activating all three unlocks the region's main boss. Defeating the boss fully restores color to that region and opens the path to the next.",
+    "scoring_system": "Points are awarded for defeating enemies, with a combo multiplier that increases with each successful 'Bounce Chain.' Collecting hidden 'Light Shards' scattered throughout the levels adds to the score. Completing a level under a certain time provides a significant time bonus, encouraging skillful and efficient play.",
+    "visual_style": "A vibrant and painterly 2D art style with soft lighting and fluid, 'squash-and-stretch' animations to emphasize the bouncy nature of the gameplay. The world is filled with oversized, fantastical plants and cute, expressive character designs. Areas corrupted by the gloom are desaturated and grey, but burst with brilliant color as the player progresses and restores them.",
+    "sound_theme": "An upbeat, cheerful, and melodic soundtrack with a focus on woodwind and string instruments. Sound effects are satisfyingly 'squishy' and 'boingy' to make the core stomp mechanic feel impactful and fun. Each region has its own musical theme that starts simple and melancholic, but grows more complex and layered as color and life are restored to it."
+  },
+  "level_design": {
+    "level_number": 1,
+    "name": "The Bouncing Beginnings",
+    "description": "An overgrown courtyard where ancient mechanisms lie dormant. Master the Pogo Stomp to clear a path and awaken the exit.",
+    "size": {
+      "width": 800,
+      "height": 600
+    },
+    "spawn_points": [
+      {
+        "x": 75,
+        "y": 525,
+        "type": "player"
+      }
+    ],
+    "obstacles": [
+      {
+        "x": 0,
+        "y": 450,
+        "width": 250,
+        "height": 20,
+        "type": "wall"
+      },
+      {
+        "x": 300,
+        "y": 200,
+        "width": 20,
+        "height": 250,
+        "type": "wall"
+      },
+      {
+        "x": 550,
+        "y": 150,
+        "width": 100,
+        "height": 40,
+        "type": "rock_cluster"
+      },
+      {
+        "x": 650,
+        "y": 450,
+        "width": 40,
+        "height": 40,
+        "type": "stomp_switch",
+        "id": "exit_switch"
+      },
+      {
+        "x": 780,
+        "y": 50,
+        "width": 20,
+        "height": 100,
+        "type": "gate_closed",
+        "linked_switch_id": "exit_switch"
+      }
+    ],
+    "powerups": [
+      {
+        "x": 700,
+        "y": 100,
+        "type": "health"
+      }
+    ],
+    "enemies": [
+      {
+        "x": 200,
+        "y": 500,
+        "type": "basic",
+        "patrol_path": [
+          [
+            200,
+            500
+          ],
+          [
+            250,
+            500
+          ]
+        ]
+      },
+      {
+        "x": 400,
+        "y": 300,
+        "type": "basic",
+        "patrol_path": []
+      },
+      {
+        "x": 450,
+        "y": 320,
+        "type": "basic",
+        "patrol_path": []
+      }
+    ],
+    "objectives": [
+      {
+        "type": "reach_location",
+        "target": {
+          "x": 790,
+          "y": 100
+        }
+      }
+    ],
+    "difficulty": "easy",
+    "time_limit": 180
+  },
+  "assets": {
+    "player": "A small, round, jelly-like creature, bright yellow in color. It has two large, simple black eyes and bounces and squishes with every movement.",
+    "enemies": {
+      "basic": "A small, spiky, greyish blob with sad-looking eyes that hops slowly. It bursts into a splash of color when stomped.",
+      "aggressive": "A taller, jagged, dark grey creature resembling a thorny weed. It has a single, glowing red eye and lunges forward."
+    },
+    "powerups": {
+      "health": "A glowing, bright red, heart-shaped berry with a small green leaf on top. It pulses with a soft light.",
+      "speed": "A vibrant green leaf shaped like a stylized wing or feather, leaving a shimmering golden trail."
+    },
+    "obstacles": {
+      "wall": "A thick wall of tangled, oversized, grey thorny vines. When restored, small, colorful flowers bloom on them.",
+      "rock": "A large, smooth, rounded boulder, dark grey in color. Patches of bright green moss appear on it in restored areas."
+    },
+    "background": "A multi-layered scene of giant, soft-edged mushrooms and towering, curly-stemmed flowers. The color palette is grey and muted in corrupted zones, becoming vibrant and lush as they are restored.",
+    "ui_elements": {
+      "score": "A simple, bold, white number with a soft drop-shadow, displayed in the top corner.",
+      "health_bar": "A row of three simple, rounded heart icons. They are bright red when full and turn grey and cracked when depleted."
+    }
+  },
+  "created_at": "2025-10-19T07:26:02.145611",
+  "theme": "A game where your like mario and expore the world stomping on goobas"
+}

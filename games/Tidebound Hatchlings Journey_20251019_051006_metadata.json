@@ -1,0 +1,156 @@
+{
+  "concept": {
+    "title": "Tidebound: Hatchling's Journey",
+    "description": "Embark on a perilous and heartwarming journey as a tiny sea turtle hatchling, guiding your siblings from their sandy nest through a gauntlet of natural predators and environmental hazards, all the way to the life-giving embrace of the open ocean. A top-down 2D survival puzzle-adventure where every step counts.",
+    "genre": "Survival Puzzle-Adventure",
+    "theme": "Coastal survival, nature's unforgiving beauty, the journey of perseverance, and the struggle of fragile life.",
+    "objective": "Guide as many sea turtle hatchlings as possible from their inland nest across the beach, through dangerous tide pools, and into the safety of the vast ocean.",
+    "mechanics": [
+      "**Hatchling Control & Protection**: Players control a lead hatchling, with other hatchlings following in a line. The primary goal is to protect the group, as each lost hatchling makes the journey harder and reduces the final score.",
+      "**Environmental Navigation & Puzzle Solving**: Utilize terrain features like shade (to avoid heat), shallow water (for faster movement), rocky outcrops (for cover), and currents (for quick traversal in water) to bypass obstacles and find safe paths.",
+      "**Stealth & Evasion**: Hide from patrolling predators using environmental cover (e.g., seaweed, shadows, burrowing) and precise timing to avoid detection and capture.",
+      "**Dynamic Tide Cycles**: Certain levels feature a dynamic tide, altering the playable area, revealing new paths, or submerging previous safe zones, adding a time-sensitive element to navigation."
+    ],
+    "player_abilities": [
+      "**Burrow (Brief)**: Dig into soft sand for temporary cover from aerial threats or extreme heat. Limited duration and leaves the turtle stationary.",
+      "**Shell Sprint**: A short burst of speed, useful for quick dashes across open areas or escaping immediate danger. Drains a small amount of 'stamina' or energy.",
+      "**Hydro Glide (Water only)**: Once in water, ability to glide through currents, gaining speed or bypassing obstacles. Can be used to accelerate briefly or navigate tricky aquatic sections."
+    ],
+    "enemies": [
+      {
+        "name": "Hungry Seagull",
+        "behavior": "Patrols open sandy areas from above. Swoops down quickly to snatch exposed individual hatchlings. Requires quick burrowing or seeking cover.",
+        "difficulty": "hard"
+      },
+      {
+        "name": "Skittering Crab",
+        "behavior": "Ground-based enemy, patrols sandy areas and tide pools. Can block paths, disorient a hatchling with a small nip, or push them into hazards. Can be temporarily stunned by certain power-ups or environmental interactions.",
+        "difficulty": "medium"
+      },
+      {
+        "name": "Opportunistic Raccoon/Fox",
+        "behavior": "Appears in later coastal/dune levels, especially at dusk/night. More intelligent, actively searches for hatchlings, and can detect poorly burrowed turtles. Requires careful planning and extended stealth.",
+        "difficulty": "hard"
+      },
+      {
+        "name": "Tide Pool Peril (Large Fish)",
+        "behavior": "A larger, territorial fish that patrols deeper tide pools and shallow ocean areas. Moves fast and can consume a hatchling in a single pass. Requires precise timing to cross its path or utilize faster currents.",
+        "difficulty": "hard"
+      }
+    ],
+    "powerups": [
+      {
+        "name": "Cooling Dewdrop",
+        "effect": "Instantly replenishes a significant portion of the turtle's 'Energy' or 'Heat Gauge' (if heat is a mechanic). Found in shaded areas or after rain showers, crucial for crossing hot stretches of sand."
+      },
+      {
+        "name": "Seaweed Camouflage",
+        "effect": "Grants temporary invisibility to most ground-based enemies and significantly reduces detection range from aerial threats. Allows for safer passage through highly exposed areas."
+      },
+      {
+        "name": "Stamina Berry",
+        "effect": "Temporarily increases the duration or reduces the cost of 'Shell Sprint' and 'Hydro Glide' abilities, allowing for longer bursts of speed or more agile water movement."
+      },
+      {
+        "name": "Companion Shell",
+        "effect": "Adds an additional hatchling to the player's following group, increasing the potential for a higher final score but also adding another vulnerable member to protect."
+      }
+    ],
+    "level_progression": "Levels are structured as a series of distinct environmental zones, each introducing new hazards, enemy types, and environmental puzzles. Players start at the dune nest, navigating through the treacherous open beach, then navigating complex rocky tide pools, finally venturing into the unpredictable surf, and culminating in a perilous swim to the open ocean. Each zone progressively increases in difficulty, often featuring changing conditions like tide levels, time of day (dusk/night levels introduce new predators), and more intricate environmental interactions.",
+    "scoring_system": "Points are primarily awarded for each hatchling that successfully reaches the ocean. Bonus points are given for faster completion times, collecting rare 'Ocean Fragments' (iridescent shells or sea glass found off the main path), and for completing levels with minimal loss of hatchlings or without taking damage from certain environmental hazards. An 'Efficiency Score' could track resources used (e.g., burrows, sprints) for an added challenge.",
+    "visual_style": "Top-down, 2D pixel art with a charming, slightly cartoony aesthetic. Detailed environments feature sandy textures, shimmering water effects, and lush coastal vegetation that reacts to the player's movement. Clear visual indicators highlight hot sand, shaded safe zones, and interactable elements. Emphasis on vibrant colors during day cycles, transitioning to soft, atmospheric lighting for dusk and dawn levels.",
+    "sound_theme": "Relaxing ambient sounds of ocean waves, chirping seabirds, and rustling reeds establish a serene but fragile atmosphere. Music shifts dynamically from calm, orchestral melodies to suspenseful, percussive tracks when predators are near or during challenging segments. Distinct sound effects for hatchling movements, enemy actions (e.g., seagull cries, crab scuttles), and environmental interactions provide clear audio cues, enhancing both immersion and gameplay awareness."
+  },
+  "level_design": {
+    "level_number": 1,
+    "name": "Level 1",
+    "description": "Basic level 1",
+    "size": {
+      "width": 800,
+      "height": 600
+    },
+    "spawn_points": [
+      {
+        "x": 50,
+        "y": 50,
+        "type": "player"
+      }
+    ],
+    "obstacles": [
+      {
+        "x": 200,
+        "y": 200,
+        "width": 50,
+        "height": 50,
+        "type": "wall"
+      },
+      {
+        "x": 500,
+        "y": 300,
+        "width": 30,
+        "height": 30,
+        "type": "rock"
+      }
+    ],
+    "powerups": [
+      {
+        "x": 300,
+        "y": 150,
+        "type": "health"
+      },
+      {
+        "x": 600,
+        "y": 400,
+        "type": "speed"
+      }
+    ],
+    "enemies": [
+      {
+        "x": 400,
+        "y": 300,
+        "type": "basic",
+        "patrol_path": [
+          [
+            400,
+            300
+          ],
+          [
+            450,
+            300
+          ]
+        ]
+      }
+    ],
+    "objectives": [
+      {
+        "type": "collect",
+        "target": "coins",
+        "count": 3
+      }
+    ],
+    "difficulty": "easy",
+    "time_limit": 120
+  },
+  "assets": {
+    "player": "Small, rounded, greenish-brown turtle hatchling shell with four tiny flippers and a curious head with large, dark eyes. Moves with a gentle waddle.",
+    "enemies": {
+      "basic": "Small, red, round crab with two tiny, waving pincers and six short legs. Moves slowly sideways.",
+      "aggressive": "Larger, dark purple crab with prominent, menacing pincers held high and faster, erratic movement. Has small, beady red eyes."
+    },
+    "powerups": {
+      "health": "Small, shimmering green leaf icon, perhaps with a subtle glow around it.",
+      "speed": "Stylized light blue feather icon, leaving a faint, quick-moving trail behind it."
+    },
+    "obstacles": {
+      "wall": "Low, jagged brown rock formation, textured with subtle shadows to indicate depth. Impassable.",
+      "rock": "Rounded grey pebble, slightly larger than the player, with a rough texture. Can be moved with effort."
+    },
+    "background": "Textured pale yellow sand, transitioning to shimmering light blue water at the edges. Interspersed with patches of vibrant green, rounded bush pixels. Hot sand areas are marked with a brighter, more orange-yellow hue and subtle heat-haze effect.",
+    "ui_elements": {
+      "score": "White pixel font number displayed in the top-left corner, preceded by a small, gold, shell-shaped icon.",
+      "health_bar": "Horizontal green bar that decreases from left to right, bordered by a thin black outline, typically at the top-center. Has a small heart icon to its left."
+    }
+  },
+  "created_at": "2025-10-19T05:10:06.509107",
+  "theme": "A game about tutles traveling back to the ocean"
+}

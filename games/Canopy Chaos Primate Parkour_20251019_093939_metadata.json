@@ -1,0 +1,147 @@
+{
+  "concept": {
+    "title": "Canopy Chaos: Primate Parkour",
+    "description": "Embark on a thrilling top-down 2D adventure as 'Miko', a nimble monkey tasked with recovering the sacred Sunfruit. Swing through lush jungles, clamber over ancient ruins, and outmaneuver cunning poachers and dangerous wildlife using an intuitive, momentum-based parkour system. Master fluid movement and environmental interaction to restore balance to your vibrant home.",
+    "genre": "Action-Adventure, Platformer (Top-down Isometric)",
+    "theme": "Vibrant, ancient jungle, lush ruins, wildlife, exploration, speedrunning elements.",
+    "objective": "Navigate increasingly challenging environments to find and recover the scattered pieces of the ancient 'Sunfruit' artifact, stolen by shadowy poachers. Each piece unlocks new areas and reveals more of the jungle's secrets, culminating in a confrontation to restore harmony.",
+    "mechanics": [
+      "**Dynamic Vine Swinging:** Approach highlighted vines, press action to grab. Control stick/WASD influences swing arc and momentum. Releasing at the peak of a swing or optimal point propels Miko in the desired direction, crucial for crossing large gaps and building speed.",
+      "**Environmental Parkour Traversal:** Interact seamlessly with the environment to maintain momentum. This includes: \n    *   **Wall Clamber:** Automatically attach and rapidly ascend, descend, or traverse horizontally along designated climbable surfaces (e.g., ivy-covered walls, rough cliff faces) by holding a direction towards them.\n    *   **Vault & Slide:** Automatically vault over small obstacles (logs, low walls) or slide under tight gaps when running towards them, maintaining speed.\n    *   **Ledge Grab & Shimmy:** If a jump is slightly short, Miko can automatically grab a ledge, allowing players to shimmy horizontally or pull up.",
+      "**Momentum-Based Movement System:** The core gameplay loop. Chaining together swings, leaps, wall clambers, and vaults builds and maintains Miko's speed. Higher momentum results in longer jumps, faster traversal, and can activate certain environmental interactions (e.g., breaking weak obstacles, activating pressure plates with weight). Losing momentum can lead to missed jumps or slower progress, encouraging a rhythmic, continuous flow."
+    ],
+    "player_abilities": [
+      "**Agile Leap:** A standard jump, whose height and distance are significantly influenced by Miko's current momentum. A running start or a chained parkour move results in a much greater leap.",
+      "**Dash:** A quick, short burst of speed in any cardinal direction. Useful for dodging enemy attacks, extending a slightly short jump, or quickly repositioning. Has a short cooldown.",
+      "**Primate Sense:** Briefly highlights interactive elements (vines, climbable walls, hidden paths) in the immediate vicinity, aiding navigation and revealing optimal parkour routes.",
+      "**Distraction Throw (Banana Peel):** Limited use. Throw a banana peel that, upon contact with the ground, trips and temporarily stuns most ground-based enemies. Can also be thrown directly at certain targets."
+    ],
+    "enemies": [
+      {
+        "name": "Poacher Scout",
+        "behavior": "Patrols fixed routes. If Miko enters line of sight, they will attempt to net him, slowing him down, or fire a tranquilizer dart. Can be dodged or distracted. Easy to evade but tricky in tight spaces.",
+        "difficulty": "easy"
+      },
+      {
+        "name": "Jungle Cat (Jaguar)",
+        "behavior": "Fast, agile predators that patrol designated territories. If Miko gets too close, they will pounce, dealing damage and knocking him back. They can also briefly climb certain low walls. Requires precise dodging or environmental manipulation to avoid.",
+        "difficulty": "medium"
+      },
+      {
+        "name": "Giant Venomous Spider",
+        "behavior": "Stationary or slowly patrolling. Lays sticky web traps on the ground or across pathways that slow Miko down. If Miko gets caught, the spider will quickly scuttle towards him to bite. Webs can be destroyed with a dash or a specific powerup.",
+        "difficulty": "medium"
+      },
+      {
+        "name": "Armored Poacher",
+        "behavior": "Heavier, slower than Scouts, but equipped with a shield and a stronger net gun. They take more hits to stun and can block frontal attacks/distractions. Often guard key areas or ancient artifacts.",
+        "difficulty": "hard"
+      }
+    ],
+    "powerups": [
+      {
+        "name": "Golden Banana",
+        "effect": "Grants a temporary burst of extreme speed and increased jump height/distance for 10 seconds, allowing Miko to easily clear large obstacles and outrun any enemy."
+      },
+      {
+        "name": "Thornweave Vest",
+        "effect": "Provides temporary invulnerability to minor damage and slows from environmental hazards (e.g., thorny bushes, sticky webs) for 15 seconds. Does not protect against major enemy attacks."
+      },
+      {
+        "name": "Grapple Seed",
+        "effect": "A consumable item that allows Miko to instantly sprout a temporary vine from any valid surface within a short range, allowing for an improvised swing in an emergency or to reach hidden areas. Limited uses."
+      },
+      {
+        "name": "Ancient Sunpetal",
+        "effect": "Restores a portion of Miko's health/stamina. Found sparingly, often in hidden alcoves or after defeating mini-bosses."
+      }
+    ],
+    "level_progression": "The game is divided into distinct jungle biomes: Lush Lowlands, Verdant Canopy, Sunken Ruins, and Volcanic Peaks. Each biome consists of multiple non-linear stages that progressively introduce new parkour challenges (e.g., moving platforms, collapsing bridges, wind currents), unique environmental hazards, and enemy types. Players must navigate these stages to find pieces of the Sunfruit, which then unlock access to the next biome and higher-level challenges. Each biome concludes with a unique 'boss' encounter, often a large animal or a heavily armored poacher leader, requiring strategic use of parkour and abilities to defeat.",
+    "scoring_system": "Players are scored based on:\n    *   **Time:** Completing levels quickly yields higher scores, with bonus points for beating 'par' times.\n    *   **Collectibles:** Gathering hidden Sunfruit fragments, glowing fungi, and rare jungle gems distributed throughout levels.\n    *   **Momentum Combos:** Performing long chains of parkour moves (swing-vault-clamber-leap) without breaking momentum awards significant bonus points. Longer combos yield exponentially more points.\n    *   **No-Damage Bonus:** Completing a level without taking any damage grants a substantial score multiplier.\n    *   **Secret Area Discovery:** Finding and accessing hidden areas or shortcuts provides bonus points.",
+    "visual_style": "Vibrant and lush 2D pixel art with an isometric perspective, creating a sense of depth and verticality for the 'top-down' view. Detailed environments with parallax scrolling backgrounds, rich foliage, animated water, and dynamic lighting effects (e.g., dappled sunlight through leaves). Miko's animations are fluid and expressive, emphasizing agility and speed, with clear visual feedback for momentum and actions. Enemies and interactable objects are clearly distinguishable against the background.",
+    "sound_theme": "An immersive audio landscape featuring a blend of upbeat, rhythmic jungle percussion and ambient environmental sounds (chattering monkeys, exotic bird calls, rustling leaves, distant waterfalls). The music dynamically shifts to more intense, faster-paced tracks during chase sequences, combat encounters, or when Miko is in a high-momentum parkour flow. Satisfying sound effects for every parkour action \u2013 the 'whoosh' of a swing, the 'thud' of a landing, the 'zip' of a dash \u2013 are key to providing tactile feedback."
+  },
+  "level_design": {
+    "level_number": 1,
+    "name": "Level 1",
+    "description": "Basic level 1",
+    "size": {
+      "width": 800,
+      "height": 600
+    },
+    "spawn_points": [
+      {
+        "x": 50,
+        "y": 50,
+        "type": "player"
+      }
+    ],
+    "obstacles": [
+      {
+        "x": 200,
+        "y": 200,
+        "width": 50,
+        "height": 50,
+        "type": "wall"
+      },
+      {
+        "x": 500,
+        "y": 300,
+        "width": 30,
+        "height": 30,
+        "type": "rock"
+      }
+    ],
+    "powerups": [
+      {
+        "x": 300,
+        "y": 150,
+        "type": "health"
+      },
+      {
+        "x": 600,
+        "y": 400,
+        "type": "speed"
+      }
+    ],
+    "enemies": [
+      {
+        "x": 400,
+        "y": 300,
+        "type": "basic",
+        "patrol_path": [
+          [
+            400,
+            300
+          ],
+          [
+            450,
+            300
+          ]
+        ]
+      }
+    ],
+    "objectives": [
+      {
+        "type": "collect",
+        "target": "coins",
+        "count": 3
+      }
+    ],
+    "difficulty": "easy",
+    "time_limit": 120
+  },
+  "assets": {
+    "player_sprite": "monkey.png",
+    "enemies": {
+      "basic": "SIMPLE_SHAPE, Brown",
+      "aggressive": "dog.png"
+    },
+    "powerups": {
+      "health": "flower.png"
+    },
+    "background_asset": "tree.png"
+  },
+  "created_at": "2025-10-19T09:39:39.656486",
+  "theme": "Create a game about a monkey swinging on vines and doing parkor"
+}
