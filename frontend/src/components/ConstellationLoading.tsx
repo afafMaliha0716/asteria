@@ -1,7 +1,7 @@
 import { motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 
-export function ConstellationLoading() {
+export function ConstellationLoading({ statusText }: { statusText?: string }) {
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
   const [sparkles, setSparkles] = useState<{ id: number; x: number; y: number }[]>([]);
   const [nextId, setNextId] = useState(0);
@@ -88,6 +88,7 @@ export function ConstellationLoading() {
 
       {/* Title */}
       <motion.p
+        key={statusText} // Add key to re-trigger animation on text change
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.3 }}
@@ -104,7 +105,7 @@ export function ConstellationLoading() {
           zIndex: 10,
         }}
       >
-        Forging your world<br />among the stars...
+        {statusText || 'Forging your world<br />among the stars...'}
       </motion.p>
 
       {/* Constellation animation container */}

@@ -1,26 +1,27 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# Environment files
+.env
+.env.*
+!.env.example
 
-node_modules
-dist
-dist-ssr
-*.local
+# Python
+venv/
+.venv/
+__pycache__/
+*.py[cod]
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# Generated games and PyInstaller output
+backend/games/
+backend/build/
+backend/dist/
+backend/spec/
+*.exe
+
+# Node
+node_modules/
+dist/
+
+# Editors and OS
+.vscode/
+.idea/
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-venv
+desktop.ini
