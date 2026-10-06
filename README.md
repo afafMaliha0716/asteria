@@ -17,9 +17,14 @@ Built at HackTX 2025.
    genre, objective, mechanics, player abilities, enemies, and levels.
 3. **Build.** A creation agent assembles the game from tested building-block
    templates (core loop, top-down or platformer movement, health and damage,
-   collision, game states) and has Gemini write the game-specific logic on top.
-4. **Package.** The backend bundles the game with PyInstaller and the web app
-   offers it as a download.
+   collision, game states, asset loading), picks sprites from a small library,
+   and has Gemini write the game-specific logic on top.
+4. **Check.** The generated game has to compile and survive a few seconds of
+   running headless. If it fails, the error goes back to the model for one more
+   try. If that fails too, Asteria falls back to a simple game that is known to
+   work, so you always get something playable.
+5. **Package.** The backend bundles the game and its sprites with PyInstaller
+   and the web app offers it as a download.
 
 Generation runs as a background task. The frontend polls a status endpoint and
 shows progress while the agents work.
@@ -36,10 +41,12 @@ backend/    Python + FastAPI
   main.py                       API server and command-line interface
   agents/game_agents.py         Design, level, asset, and creation agents,
                                 coordinated by an AutonomousGameDirector
-  generators/gemini_generator.py   Gemini prompts and response parsing
+  generators/gemini_generator.py   Gemini prompts, parsing, retries, fallbacks
+  generators/validator.py       Compiles and test-runs each generated game
   engine/game_engine.py         Pygame engine: entities, collision, game states
   templates/                    Reusable gameplay building blocks
   assets/                       Sprite library and procedural asset generator
+  tests/                        Test suite (runs without an API key)
 
 examples/   Four games Asteria generated during the hackathon
 ```
@@ -65,8 +72,12 @@ python -m venv venv
 source venv/bin/activate          # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env              # then add your GEMINI_API_KEY
+python check_setup.py             # confirms the key and models work
 python main.py --server           # http://localhost:8000
 ```
+
+PyInstaller builds for the system it runs on, so the download is a Windows
+`.exe` on Windows and a native executable on macOS or Linux.
 
 The backend also works from the command line:
 
@@ -82,6 +93,18 @@ cd frontend
 npm install
 npm run dev                       # http://localhost:5173
 ```
+
+### Tests
+
+```bash
+cd backend
+pip install -r requirements-dev.txt
+python -m pytest tests
+```
+
+The tests replace Gemini with a fake, so they run without an API key. They
+cover the templates, the retry and fallback paths, and the full flow from
+prompt to a packaged game that runs.
 
 ## Try a generated game
 

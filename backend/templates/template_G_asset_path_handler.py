@@ -9,7 +9,7 @@ def resource_path(relative_path):
     This function must be called every time a resource file (like an image) is loaded.
     
     CRITICAL NOTE: Assumes all assets are in a subfolder named 'assets' 
-    relative to the script's execution directory in both dev and bundled modes.
+    next to the script in dev mode, and inside the bundle in compiled mode.
     """
     try:
         # PyInstaller creates a temp folder and stores path in _MEIPASS
@@ -18,9 +18,9 @@ def resource_path(relative_path):
         return os.path.join(base_path, 'assets', relative_path)
         
     except Exception:
-        # Not running as a compiled executable, use the current script directory
-        # We join the current directory with the relative path.
-        base_path = os.path.abspath(".") 
+        # Not running as a compiled executable: look next to this script, not in the
+        # folder the game was launched from, so the game runs from anywhere.
+        base_path = os.path.dirname(os.path.abspath(__file__))
         return os.path.join(base_path, 'assets', relative_path)
     
-# --- END TEMPLATE: G_ASSET_PATH_HANDLER ---
+# --- END TEMPLATE: G_ASSET_PATH_HANDLER ---

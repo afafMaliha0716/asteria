@@ -7,6 +7,7 @@ import os
 import json
 import time
 import random
+import shutil
 import textwrap
 from typing import Dict, List, Any, Optional
 from datetime import datetime
@@ -92,40 +93,76 @@ class GameCreationAgent:
         
         # 4. GENERATE LEVEL DESIGN (This remains the same)
         level_design = self.generator.generate_level_design(game_concept)
-        
-        # 5. GENERATE FINAL CODE (CRITICAL CHANGE)
-        # We pass the stitched code to the LLM
-        final_code_blocks = self.generator.generate_game_code(
-            game_concept, 
-            level_design, 
-            stitched_template_code  # <-- NEW ARGUMENT
-        )
 
+        # 5. PICK SPRITES FROM THE LIBRARY
+        # This happens before the code is written so the game only loads images that exist.
         sprite_manifest = get_sprite_manifest()
+        asset_descriptions = self.generator.generate_asset_descriptions(game_concept, sprite_manifest)
+        sprites = self.select_sprites(asset_descriptions, sprite_manifest)
+        logger.info(f"Sprites selected: {sprites}")
+        assets_dir = self.stage_sprites(sprites)
 
-    # 6. ASSEMBLE FINAL SCRIPT
-        final_script = final_code_blocks 
-        final_script = textwrap.dedent(final_script).strip()
-        
-        # --- CRITICAL NEW LOGGING STEP ---
+        # 6. GENERATE FINAL CODE
+        # The stitched templates go to the LLM, and the result is checked before we accept it.
+        final_script = self.generator.generate_game_code(
+            game_concept,
+            level_design,
+            stitched_template_code,
+            sprites=sprites,
+            assets_dir=assets_dir,
+        )
+        final_script = textwrap.dedent(final_script).strip() + "\n"
+
         logger.info("-" * 50)
         logger.info(f"FINAL SCRIPT CODE GENERATED:\n{final_script[:2100]}...\n(Code snippet truncated for log brevity)")
         logger.info("-" * 50)
-        # -----------------------------------
 
-        # 7. GENERATE ASSETS & PACKAGE 
-        asset_descriptions = self.generator.generate_asset_descriptions(game_concept, sprite_manifest)
-        
-        # 8. PACKAGE AND SAVE
+        # 7. PACKAGE
         game_package = {
             "concept": game_concept,
             "level_design": level_design,
             "code": final_script, # <-- The code string is stored here
             "assets": asset_descriptions,
+            "sprites": sprites,
+            "templates": template_ids,
             "created_at": datetime.now().isoformat(),
             "theme": theme
         }
         return game_package
+
+    @staticmethod
+    def select_sprites(asset_descriptions: Any, sprite_manifest: List[str]) -> List[str]:
+        """Collect every library image the asset agent picked, ignoring anything that is not a real file."""
+        available = set(sprite_manifest)
+        chosen: List[str] = []
+
+        def walk(value: Any) -> None:
+            if isinstance(value, dict):
+                for item in value.values():
+                    walk(item)
+            elif isinstance(value, list):
+                for item in value:
+                    walk(item)
+            elif isinstance(value, str) and value.strip() in available and value.strip() not in chosen:
+                chosen.append(value.strip())
+
+        walk(asset_descriptions)
+        return chosen
+
+    @staticmethod
+    def stage_sprites(sprites: List[str], games_dir: str = "games") -> str:
+        """
+        Copy the chosen sprites to games/assets so a generated game finds them next to
+        itself (see template G). Returns the assets directory.
+        """
+        library = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "images")
+        assets_dir = os.path.join(games_dir, "assets")
+        os.makedirs(assets_dir, exist_ok=True)
+        for name in sprites:
+            source = os.path.join(library, name)
+            if os.path.isfile(source):
+                shutil.copy2(source, os.path.join(assets_dir, name))
+        return assets_dir
     
     def save_game(self, game_package: Dict[str, Any], filename: str = None) -> str:
         """Save game to file"""
@@ -141,16 +178,17 @@ class GameCreationAgent:
         os.makedirs("games", exist_ok=True)
         
         # Write the game code
-        with open(filepath, 'w') as f:
+        with open(filepath, 'w', encoding='utf-8') as f:
             f.write(game_package["code"])
         
         # Save metadata
         metadata_path = filepath.replace('.py', '_metadata.json')
-        with open(metadata_path, 'w') as f:
+        with open(metadata_path, 'w', encoding='utf-8') as f:
             json.dump({
                 "concept": game_package["concept"],
                 "level_design": game_package["level_design"],
                 "assets": game_package["assets"],
+                "sprites": game_package.get("sprites", []),
                 "created_at": game_package["created_at"],
                 "theme": game_package["theme"]
             }, f, indent=2)
@@ -386,7 +424,7 @@ class AutonomousGameDirector:
         
         # Step 2: Analyze and improve concept
         analysis = self.design_agent.analyze_and_improve_game(best_concept)
-        if analysis["recommendation"] == "reject":
+        if analysis.get("recommendation") == "reject":
             logger.warning("Game concept rejected, using fallback")
             best_concept = self.gemini._get_fallback_concept(theme)
         
@@ -450,27 +488,31 @@ class AutonomousGameDirector:
         
         # Save main game file (first level)
         main_game_path = os.path.join(game_dir, "main.py")
+        template_ids = self.gemini.generate_template_plan(complete_game["concept"])
+        stitched_template = GameCreationAgent.stitch_templates(template_ids)
         first_level_code = self.gemini.generate_game_code(
             complete_game["concept"], 
-            complete_game["levels"][0]
+            complete_game["levels"][0],
+            stitched_template
         )
         
-        with open(main_game_path, 'w') as f:
+        with open(main_game_path, 'w', encoding='utf-8') as f:
             f.write(first_level_code)
         
         # Save additional levels
         for i, level in enumerate(complete_game["levels"][1:], 1):
             level_code = self.gemini.generate_game_code(
                 complete_game["concept"], 
-                level
+                level,
+                stitched_template
             )
             level_path = os.path.join(game_dir, f"level_{i+1}.py")
-            with open(level_path, 'w') as f:
+            with open(level_path, 'w', encoding='utf-8') as f:
                 f.write(level_code)
         
         # Save metadata
         metadata_path = os.path.join(game_dir, "metadata.json")
-        with open(metadata_path, 'w') as f:
+        with open(metadata_path, 'w', encoding='utf-8') as f:
             json.dump(complete_game, f, indent=2)
         
         logger.info(f"Complete game saved to {game_dir}")

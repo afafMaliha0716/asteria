@@ -95,7 +95,7 @@ export function StarField() {
                 move-y var(--move-duration-offset) infinite ease-in-out alternate
               `,
               animationDelay: `${star.animationDelay}s`,
-              // @ts-ignore
+              // @ts-expect-error CSS custom properties are not in React's style type
               '--duration': `${star.animationDuration}s`,
               '--opacity-min': star.opacity,
               '--move-x': `${star.moveX}vw`,

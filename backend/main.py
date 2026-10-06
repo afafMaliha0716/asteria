@@ -100,8 +100,14 @@ def run_game_generation(task_id: str, request: GenerationRequest):
             "--distpath", os.path.join(backend_dir, "dist"),
             "--workpath", os.path.join(backend_dir, "build"),
             "--specpath", os.path.join(backend_dir, "spec"),
-            os.path.abspath(filepath)  # Use absolute path here
         ]
+        # Bundle the sprites this game uses. They land in an 'assets' folder inside the
+        # executable, which is where template G's resource_path() looks.
+        for sprite in game_package.get("sprites", []):
+            sprite_path = os.path.abspath(os.path.join("games", "assets", sprite))
+            if os.path.isfile(sprite_path):
+                pyinstaller_command += ["--add-data", f"{sprite_path}{os.pathsep}assets"]
+        pyinstaller_command.append(os.path.abspath(filepath))  # Use absolute path here
 
         process = subprocess.run(pyinstaller_command, capture_output=True, encoding="utf-8", text=True, cwd=backend_dir)
         logger.info(f"[{task_id}] PyInstaller finished.")
@@ -170,9 +176,9 @@ async def download_game_file(game_filename: str):
     """
     Serves the generated game file for download.
     """
-    games_dir = "games"
+    backend_dir = os.path.dirname(os.path.abspath(__file__))
     game_filename = os.path.basename(game_filename)
-    filepath = os.path.join(games_dir, game_filename)
+    filepath = os.path.join(backend_dir, "games", game_filename)
     
     if os.path.exists(filepath):
         return FileResponse(path=filepath, media_type='application/octet-stream', filename=game_filename)
@@ -197,7 +203,7 @@ async def download_executable_file(game_filename: str):
         logger.info(f"File FOUND. Serving: {game_filename}")
         return FileResponse(
             path=filepath, 
-            media_type='application/vnd.microsoft.portable-executable', 
+            media_type='application/octet-stream', 
             filename=game_filename
         )
     
@@ -223,7 +229,7 @@ class GameGeneratorCLI:
         if not self.api_key:
             print("Error: Gemini API key not found!")
             print("Please set the GEMINI_API_KEY environment variable or provide it as an argument.")
-            print("You can get an API key from: https://makersuite.google.com/app/apikey")
+            print("You can get an API key from: https://aistudio.google.com/app/apikey")
             return False
         
         try:

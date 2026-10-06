@@ -2,7 +2,7 @@ import { motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 
 export function ConstellationLoading({ statusText }: { statusText?: string }) {
-  const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
+  const [, setCursorPos] = useState({ x: 0, y: 0 });
   const [sparkles, setSparkles] = useState<{ id: number; x: number; y: number }[]>([]);
   const [nextId, setNextId] = useState(0);
 
