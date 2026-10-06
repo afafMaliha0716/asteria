@@ -1,176 +1,71 @@
-# Agentic Game Generator with Gemini Integration
+# Asteria backend
 
-A powerful system that uses Google's Gemini AI to autonomously generate complete topdown games using pygame. This system features multiple AI agents that can create games from concept to playable code entirely autonomously.
+Python and FastAPI. See the [main README](../README.md) for what Asteria does
+and how to run the whole app.
 
-## 🎮 Features
+## Layout
 
-- **🤖 Agentic Game Creation**: Multiple AI agents that autonomously design and implement games
-- **🧠 Gemini Integration**: Uses Google's Gemini API for intelligent game generation
-- **🎯 Topdown Game Engine**: Built on pygame for 2D topdown games with collision detection
-- **🎨 Asset Generation**: Automatic generation of sprites, backgrounds, and UI elements
-- **📋 Game Templates**: Pre-built templates for adventure, action, and puzzle games
-- **🔧 Modular Design**: Easy to extend and customize with new agents and templates
-
-## 🚀 Quick Start
-
-1. **Install dependencies:**
-```bash
-pip install -r requirements.txt
+```
+main.py                         API server and command-line interface
+check_setup.py                  Confirms your API key, models, and PyInstaller work
+agents/game_agents.py           Design, level, asset, and creation agents
+generators/gemini_generator.py  Gemini prompts, response parsing, retries, fallbacks
+generators/validator.py         Compiles and test-runs each generated game
+engine/game_engine.py           Pygame engine: entities, collision, game states
+templates/                      Seven tested building blocks every game starts from
+assets/images/                  Sprite library the asset agent picks from
+tests/                          Test suite (runs without an API key)
 ```
 
-2. **Set up your Gemini API key:**
+## The templates
+
+| Template | What it provides |
+|----------|------------------|
+| `A_CORE_SETUP` | Window, clock, and main loop |
+| `B_MOVEMENT_TOPDOWN` | Free movement on both axes |
+| `C_MOVEMENT_PLATFORMER` | Gravity, jumping, and ground collision |
+| `D_HEALTH_DAMAGE` | Health, damage, healing, and a health bar |
+| `E_BASIC_COLLISION` | Collision with walls, resolved per axis |
+| `F_GAME_STATES` | Menu, playing, and game over screens |
+| `G_ASSET_PATH_HANDLER` | Finds sprites both in development and inside a packaged executable |
+
+A planning model picks top-down or platformer movement. The other five are
+always included. Each gameplay template is a small game that runs on its own:
+
 ```bash
-export GEMINI_API_KEY="your_api_key_here"
+python templates/template_C_movement_platformer.py
 ```
-Get your API key from: https://makersuite.google.com/app/apikey
 
-3. **Run the game generator:**
+## Command line
+
 ```bash
-python main.py --interactive
-```
-
-## 🎯 Usage Examples
-
-### Command Line Interface
-```bash
-# Create a simple game
-python main.py --simple --theme "Space Adventure"
-
-# Create a complete multi-level game
-python main.py --complete --theme "Fantasy Quest" --levels 5
-
-# List generated games
+python main.py --server                              # API on http://localhost:8000
+python main.py --simple --theme "Space Adventure"    # one game, saved to games/
+python main.py --complete --theme "Fantasy Quest" --levels 3
 python main.py --list
-
-# Run a specific game
-python main.py --run games/MyGame_20241201_143022.py
-```
-
-### Interactive Mode
-```bash
+python main.py --run "games/<file>.py"
 python main.py --interactive
 ```
 
-### Python API
-```python
-from agents.game_agents import AutonomousGameDirector
+## Configuration
 
-# Create game director
-director = AutonomousGameDirector(api_key="your_key")
+Set these in `backend/.env` (see `.env.example`):
 
-# Generate complete game
-game = director.create_complete_game("Cyberpunk", 3)
-game_dir = director.save_complete_game(game)
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `GEMINI_API_KEY` | none | Required |
+| `ASTERIA_PLANNING_MODEL` | `gemini-3.5-flash-lite` | Concepts, levels, template and sprite choices |
+| `ASTERIA_CODING_MODEL` | `gemini-3.8-flash` | Writes the game code |
+| `ASTERIA_SMOKE_TEST` | `1` | Set to `0` to skip test-running generated games |
+
+## Tests
+
+```bash
+pip install -r requirements-dev.txt
+python -m pytest tests
 ```
 
-## 🏗️ System Architecture
-
-### AI Agents
-- **GameCreationAgent**: Main agent for autonomous game creation
-- **GameDesignAgent**: Analyzes and improves game concepts
-- **LevelDesignAgent**: Creates level sequences with difficulty scaling
-- **AssetGenerationAgent**: Generates visual style guides
-- **AutonomousGameDirector**: Orchestrates all agents
-
-### Game Engine
-- **Entity System**: Base classes for all game objects
-- **Collision Detection**: Built-in collision handling
-- **Game States**: Menu, playing, paused, game over, victory
-- **UI System**: Health bars, score display, time limits
-
-### Templates
-- **Adventure Template**: Exploration-based games with collection mechanics
-- **Action Template**: Fast-paced games with combat and quick reflexes
-- **Puzzle Template**: Logic-based games requiring problem-solving
-
-## 📁 Project Structure
-
-```
-Game/
-├── main.py                 # Main entry point
-├── example.py              # Usage examples
-├── config.py              # Configuration management
-├── requirements.txt        # Dependencies
-├── agents/                # AI agent implementations
-│   └── game_agents.py
-├── engine/                # Game engine components
-│   └── game_engine.py
-├── generators/            # Game generation modules
-│   └── gemini_generator.py
-├── templates/             # Game templates and patterns
-│   └── game_templates.py
-├── assets/                # Asset generation system
-│   └── asset_generator.py
-├── games/                 # Generated game files
-└── README.md              # This file
-```
-
-## 🎨 Generated Game Features
-
-Each generated game includes:
-- **Complete pygame implementation** with all necessary imports
-- **Player movement** (WASD or arrow keys)
-- **Enemy AI** with different behavior patterns
-- **Powerup system** with various effects
-- **Collision detection** and response
-- **Scoring system** and UI elements
-- **Game states** (menu, playing, game over, victory)
-- **Level progression** with increasing difficulty
-
-## 🔧 Configuration
-
-The system can be configured through:
-- Environment variables
-- `config.json` file
-- Command line arguments
-
-Key configuration options:
-- `GEMINI_API_KEY`: Your Gemini API key
-- `GAME_WIDTH`: Default game width (default: 800)
-- `GAME_HEIGHT`: Default game height (default: 600)
-- `GAME_FPS`: Default FPS (default: 60)
-
-## 🎯 Game Types Supported
-
-- **Adventure Games**: Exploration, collection, discovery mechanics
-- **Action Games**: Fast-paced combat, evasion, power-ups
-- **Puzzle Games**: Logic-based challenges, block pushing, switch activation
-- **Custom Games**: AI-generated unique concepts based on themes
-
-## 🚀 Advanced Usage
-
-### Creating Custom Agents
-```python
-from agents.game_agents import GameDesignAgent
-
-class CustomAgent(GameDesignAgent):
-    def analyze_and_improve_game(self, game_concept):
-        # Custom analysis logic
-        return super().analyze_and_improve_game(game_concept)
-```
-
-### Using Templates
-```python
-from templates.game_templates import TemplateManager
-
-template_manager = TemplateManager()
-game_data = template_manager.generate_game_from_template(
-    "adventure", "Space Exploration", 5
-)
-```
-
-### Asset Generation
-```python
-from assets.asset_generator import AssetGenerator
-
-asset_gen = AssetGenerator()
-assets = asset_gen.generate_asset_pack(game_concept)
-```
-
-## 🤝 Contributing
-
-This is a hackathon project demonstrating agentic AI systems for game generation. Feel free to extend and improve!
-
-## 📄 License
-
-This project is open source and available under the MIT License.
+The tests swap Gemini for a fake, so they need no API key. They cover the
+templates, the retry and fallback paths, and the full web flow: generate,
+package with PyInstaller, download, and run the packaged game to confirm its
+sprite loads. That last test takes about a minute.

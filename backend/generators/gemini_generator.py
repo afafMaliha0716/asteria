@@ -5,35 +5,64 @@ Handles all interactions with Google's Gemini AI for autonomous game creation
 
 import os
 import json
-import google.generativeai as genai
+from google import genai
 from typing import Dict, List, Any, Optional
 import logging
 import random
+import re
+
+from generators.validator import check_game_code
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+DEFAULT_PLANNING_MODEL = 'gemini-3.5-flash-lite'
+DEFAULT_CODING_MODEL = 'gemini-3.8-flash'
+
+
+class _Model:
+    """One Gemini model. Keeps the `model.generate_content(prompt)` call shape."""
+
+    def __init__(self, client: Any, name: str):
+        self.client = client
+        self.name = name
+
+    def generate_content(self, prompt: str):
+        return self.client.models.generate_content(model=self.name, contents=prompt)
+
+
+def extract_code(text: str) -> str:
+    """Pull the Python out of a model response, with or without a markdown fence."""
+    text = (text or "").strip()
+    blocks = re.findall(r"```(?:python|py)?[ \t]*\n(.*?)```", text, flags=re.DOTALL)
+    if blocks:
+        return max(blocks, key=len).strip()
+    # An unterminated fence (the response was cut off) or no fence at all
+    text = re.sub(r"^```(?:python|py)?[ \t]*\n", "", text)
+    return text.strip()
+
 
 class GeminiGameGenerator:
     """Main class for interfacing with Gemini AI for game generation"""
     
-    def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, api_key: Optional[str] = None, client: Any = None):
+        """
+        `client` is optional and mainly for tests: anything with a
+        `models.generate_content(model=..., contents=...)` method works.
+        """
         self.api_key = api_key or os.getenv('GEMINI_API_KEY')
-        if not self.api_key:
-            raise ValueError("Gemini API key not found...")
-        # ... API Key Setup ...
-        genai.configure(api_key=self.api_key)
-        
-        # Define models based on task tier
-        try:
-            self.planning_model = genai.GenerativeModel('gemini-2.5-flash-lite')
-        except:
-            self.planning_model = genai.GenerativeModel('gemini-2.5-flash') # Fallback
+        if client is None:
+            if not self.api_key:
+                raise ValueError("Gemini API key not found. Set GEMINI_API_KEY in backend/.env.")
+            client = genai.Client(api_key=self.api_key)
+        self.client = client
 
-        try:
-            self.coding_model = genai.GenerativeModel('gemini-2.5-flash')
-        except:
-            self.coding_model = genai.GenerativeModel('gemini-2.5-pro') # High-end fallback
+        # Two tiers: a fast model for planning and JSON, a stronger one for code.
+        # Override either with an environment variable if a model is retired.
+        self.planning_model = _Model(client, os.getenv('ASTERIA_PLANNING_MODEL', DEFAULT_PLANNING_MODEL))
+        self.coding_model = _Model(client, os.getenv('ASTERIA_CODING_MODEL', DEFAULT_CODING_MODEL))
+        # The design and asset agents use the planning tier.
+        self.model = self.planning_model
     
     def generate_template_plan(self, game_concept: Dict[str, Any]) -> List[str]:
         """
@@ -83,13 +112,20 @@ class GeminiGameGenerator:
                 content = content[3:-3].strip()
 
             # The clean JSON object is now passed to the parser
-            return json.loads(content)
+            return self._clean_template_plan(json.loads(content), always_selected)
             
         except Exception as e:
             logger.error(f"Error generating template plan: {e}")
             # FALLBACK: If the LLM fails, default to a safe, working list (Top-Down)
             return always_selected + ["B_MOVEMENT_TOPDOWN"]
         
+    @staticmethod
+    def _clean_template_plan(plan: Any, always_selected: List[str]) -> List[str]:
+        """Never trust the model's list as is: keep the core templates and exactly one movement style."""
+        chosen = plan if isinstance(plan, list) else []
+        movement = "C_MOVEMENT_PLATFORMER" if "C_MOVEMENT_PLATFORMER" in chosen else "B_MOVEMENT_TOPDOWN"
+        return always_selected + [movement]
+
     def generate_game_concept(self, theme: str = None) -> Dict[str, Any]:
         """Generate a complete game concept using Gemini with a random seed."""
         # 1. GENERATE A RANDOM SEED
@@ -231,45 +267,83 @@ class GeminiGameGenerator:
             logger.error(f"Error generating level design: {e}")
             return self._get_fallback_level(level_number)
     
-    def generate_game_code(self, game_concept: Dict[str, Any], level_design: Dict[str, Any], stitched_template: str) -> str:
-        """Generate pygame code by filling in the unique logic for the template."""
-        
+    def generate_game_code(self, game_concept: Dict[str, Any], level_design: Dict[str, Any],
+                           stitched_template: str, sprites: Optional[List[str]] = None,
+                           assets_dir: Optional[str] = None, max_attempts: int = 2) -> str:
+        """
+        Generate the game by having the model build on the stitched templates.
+
+        Every attempt is checked (it must compile and start up). A failed attempt
+        is sent back to the model with the error once; after that we fall back to
+        a simple game that is known to work, so the user always gets something
+        playable.
+        """
+        sprites = sprites or []
+        if sprites:
+            sprite_rules = f"""
+        SPRITES: These image files are available, and ONLY these: {', '.join(sprites)}
+        Load them with resource_path("<file name>") from the G_ASSET_PATH_HANDLER template
+        and scale them with pygame.transform.smoothscale. Draw every other object with
+        simple pygame shapes. Never load a file that is not in this list."""
+        else:
+            sprite_rules = """
+        SPRITES: No image files are available. Draw everything with simple pygame shapes
+        and do not load any image or sound files."""
+
         prompt = f"""
-        You are a specialized Pygame coder. Your task is to complete the provided Python code template 
-        by generating the unique logic required for this specific game.
+        You are a specialized Pygame coder. Build one complete game on top of the tested
+        code templates below.
         
         Game Concept: {json.dumps(game_concept, indent=2)}
         Level Design: {json.dumps(level_design, indent=2)}
         
         INSTRUCTIONS:
-        1. Analyze the provided template code and the concept/design data.
-        2. **Generate ONLY** the Python code necessary to replace the **[LLM_INJECT_...]** placeholders.
-        3. The generated code MUST be correct, functional Python that integrates seamlessly into the existing template structure.
+        1. The templates are tested building blocks. Reuse their structure and working code
+           (setup, movement, health and damage, collision, game states, asset paths) and
+           merge them into ONE program with a single game loop. Do not rewrite them from scratch.
+        2. Add the logic that is unique to this game: its objective, enemies, powerups,
+           scoring, and the level layout from the level design.
+        3. The result must be a single, complete, runnable Python file that only imports
+           pygame and the standard library, and starts the game when run as a script.
+        4. Call pygame.init() once and create the window once.
+        {sprite_rules}
         
-        --- CODE TEMPLATE FOR COMPLETION ---
+        --- CODE TEMPLATES ---
         {stitched_template}
-        --- END OF TEMPLATE ---
+        --- END OF TEMPLATES ---
         
-        YOUR RESPONSE MUST CONTAIN ONLY the Python code needed to fill ALL placeholders, 
+        YOUR RESPONSE MUST CONTAIN ONLY the complete Python file,
         wrapped in a single markdown block (```python ... ```) and nothing else.
         """
-        
-        try:
-            response = self.coding_model.generate_content(prompt)
-            code = response.text.strip()
-            
-            # Clean up the code if it's wrapped in markdown
-            if code.startswith('```python'):
-                code = code[9:-3]
-            elif code.startswith('```'):
-                code = code[3:-3]
-            
-            logger.info("Generated game code")
-            return code
-            
-        except Exception as e:
-            logger.error(f"Error generating game code: {e}")
-            return self._get_fallback_code()
+
+        attempt_prompt = prompt
+        for attempt in range(1, max_attempts + 1):
+            try:
+                response = self.coding_model.generate_content(attempt_prompt)
+                code = extract_code(response.text)
+            except Exception as e:
+                logger.error(f"Error generating game code (attempt {attempt}): {e}")
+                continue
+
+            error = check_game_code(code, assets_dir)
+            if error is None:
+                logger.info(f"Generated game code (attempt {attempt})")
+                return code
+
+            logger.warning(f"Generated game failed its check (attempt {attempt}): {error}")
+            attempt_prompt = f"""{prompt}
+
+        Your previous attempt did not work:
+        {error}
+
+        Here is that attempt. Fix the problem and return the complete corrected file.
+        ```python
+{code}
+        ```
+        """
+
+        logger.error("No working game code after retries, using the fallback game")
+        return self._get_fallback_code()
     
     def generate_asset_descriptions(self, game_concept: Dict[str, Any], sprite_manifest: List[str]) -> Dict[str, str]:
         """Generate descriptions AND select sprites for game assets."""

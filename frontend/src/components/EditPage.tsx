@@ -27,14 +27,13 @@ interface BackgroundStar {
 
 export default function EditPage({ result, onRefineWorld, onNewProject, onSaveProject }: EditPageProps) {
   const [cursorTrails, setCursorTrails] = useState<CursorTrail[]>([]);
-  const [hoverSparkles, setHoverSparkles] = useState<{ id: number; x: number; y: number }[]>([]);
+  const [, setHoverSparkles] = useState<{ id: number; x: number; y: number }[]>([]);
   const [promptValue, setPromptValue] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const [characterAnim, setCharacterAnim] = useState(false);
   const [enemyAnim, setEnemyAnim] = useState(false);
   const trailIdRef = useRef(0);
   const sparkleIdRef = useRef(0);
-  const [executableFilename, setExecutableFilename] = useState<string | null>(null);
 
 
 const [executableFilePath, setExecutableFilePath] = useState<string | null>(null);
@@ -65,7 +64,7 @@ const handleDownloadExe = () => {
         // 3. Extract ONLY the last segment (the clean filename)
         const filename = fullPath.split('/').pop() || '';
         
-        if (!filename || filename.indexOf('.exe') === -1) {
+        if (!filename) {
              alert("Error: Could not extract a valid filename from the server path.");
              console.error("Failed to extract filename from:", executableFilePath);
              return;
@@ -340,7 +339,7 @@ const handleDownloadExe = () => {
                         {/* Play in New Tab button */} 
                         <motion.button
                           onClick={handleDownloadExe}
-                          // disabled={executableFilename}
+                          disabled={!executableFilePath}
                           whileHover={{
                             scale: 1.05,
                             boxShadow: '0 0 15px rgba(0, 229, 229, 1)',
@@ -357,17 +356,17 @@ const handleDownloadExe = () => {
                             background: 'rgba(0, 229, 229, 0.1)',
                             border: '2px solid #00e5e5',
                             color: '#00e5e5',
-                            cursor: executableFilename ? 'pointer' : 'not-allowed',
+                            cursor: executableFilePath ? 'pointer' : 'not-allowed',
                             boxShadow: '0 0 10px rgba(0, 229, 229, 0.6)',
                             display: 'flex',
                             alignItems: 'center',
                             gap: '8px',
                             zIndex: 10,
-                            opacity: executableFilename ? 1 : 0.5,
+                            opacity: executableFilePath ? 1 : 0.5,
                           }}
                         >
                           <Play size={12} />
-                          Download EXE
+                          Download Game
                         </motion.button>
             
                         {/* Preview content placeholder */}
@@ -387,9 +386,9 @@ const handleDownloadExe = () => {
                         }}>
                           <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>{result?.title || 'Game Ready'}</h2>
                           <p style={{ fontSize: '0.9rem', opacity: 0.7, maxWidth: '80%' }}>{result?.description || 'Your game has been generated.'}</p>
-                          {executableFilename && (
+                          {executableFilePath && (
                             <div style={{ marginTop: '30px', fontSize: '0.8rem', opacity: 0.6, border: '1px solid rgba(0, 229, 229, 0.2)', padding: '15px' }}>
-                              <p>Click "Download EXE" to save the game.</p>
+                              <p>Click "Download Game" to save the game.</p>
                               <p style={{marginTop: '10px'}}>This is a standalone executable and does not require Python to be installed.</p>
                             </div>
                           )}
