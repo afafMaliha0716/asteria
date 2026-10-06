@@ -3,7 +3,7 @@ uvicorn[standard]
 pydantic
 python-dotenv
 google-genai
-pygame
+pygame-ce
 pillow
 numpy
 pyinstaller
