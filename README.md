@@ -108,10 +108,10 @@ prompt to a packaged game that runs.
 
 ## Try a generated game
 
-The games in `examples/` run on their own with only Pygame installed:
+The games in `examples/` run on their own with only pygame-ce installed:
 
 ```bash
-pip install pygame
+pip install pygame-ce
 python examples/turtle_trek.py
 ```
 
